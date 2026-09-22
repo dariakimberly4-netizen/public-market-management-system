@@ -4,71 +4,17 @@ import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 
 const modules = [
-    {
-        label: "Stallholders",
-        subtitle: "Profiles & records",
-        icon: "solar:users-group-rounded-bold-duotone",
-        routeName: "tenants.index",
-        accent: "from-blue-500 to-blue-700",
-    },
-    {
-        label: "Stall Map",
-        subtitle: "Interactive layout",
-        icon: "solar:map-point-bold-duotone",
-        routeName: "layouts.mapper",
-        accent: "from-violet-500 to-violet-700",
-    },
-    {
-        label: "Lease Management",
-        subtitle: "Contracts & renewals",
-        icon: "solar:document-text-bold-duotone",
-        routeName: "contracts.index",
-        accent: "from-cyan-500 to-cyan-700",
-    },
-    {
-        label: "Collections",
-        subtitle: "Payments & receipts",
-        icon: "solar:wallet-money-bold-duotone",
-        routeName: "payments.index",
-        accent: "from-emerald-500 to-emerald-700",
-    },
-    {
-        label: "Violations",
-        subtitle: "Penalties & actions",
-        icon: "solar:danger-triangle-bold-duotone",
-        routeName: "penalties.index",
-        accent: "from-rose-500 to-rose-700",
-    },
-    {
-        label: "Inspections",
-        subtitle: "Safety & compliance",
-        icon: "solar:clipboard-check-bold-duotone",
-        href: "/inspections",
-        accent: "from-amber-500 to-orange-600",
-        isNew: true,
-    },
-    {
-        label: "Vacant Stalls",
-        subtitle: "Availability & status",
-        icon: "solar:shop-2-bold-duotone",
-        routeName: "stalls.index",
-        accent: "from-teal-500 to-teal-700",
-    },
-    {
-        label: "Reports",
-        subtitle: "Ledger & analytics",
-        icon: "solar:chart-2-bold-duotone",
-        routeName: "reports.master_ledger",
-        accent: "from-slate-600 to-slate-800",
-    },
+    { label: "Stallholders", subtitle: "Profiles & records", icon: "solar:users-group-rounded-bold-duotone", routeName: "tenants.index", accent: "from-blue-500 to-blue-700" },
+    { label: "Stall Map", subtitle: "Interactive layout", icon: "solar:map-point-bold-duotone", routeName: "layouts.mapper", accent: "from-violet-500 to-violet-700" },
+    { label: "Lease Management", subtitle: "Contracts & renewals", icon: "solar:document-text-bold-duotone", routeName: "contracts.index", accent: "from-cyan-500 to-cyan-700" },
+    { label: "Collections", subtitle: "Payments & receipts", icon: "solar:wallet-money-bold-duotone", routeName: "payments.index", accent: "from-emerald-500 to-emerald-700" },
+    { label: "Violations", subtitle: "Penalties & actions", icon: "solar:danger-triangle-bold-duotone", routeName: "penalties.index", accent: "from-rose-500 to-rose-700" },
+    { label: "Inspections", subtitle: "Safety & compliance", icon: "solar:clipboard-check-bold-duotone", href: "/inspections", accent: "from-amber-500 to-orange-600", isNew: true },
+    { label: "Vacant Stalls", subtitle: "Availability & status", icon: "solar:shop-2-bold-duotone", routeName: "stalls.index", accent: "from-teal-500 to-teal-700" },
+    { label: "Reports", subtitle: "Ledger & analytics", icon: "solar:chart-2-bold-duotone", routeName: "reports.master_ledger", accent: "from-slate-600 to-slate-800" },
 ];
 
-export default function Dashboard({
-    stats,
-    recentActivity,
-    expiringContracts,
-    buildingSummary,
-}: any) {
+export default function Dashboard({ stats, recentActivity, expiringContracts, buildingSummary }: any) {
     const user = (usePage().props as any).auth.user;
     const [currentTime, setCurrentTime] = useState(new Date());
     const [inspectionIsNew, setInspectionIsNew] = useState(false);
@@ -148,13 +94,13 @@ export default function Dashboard({
                             <h2 className="mt-1 text-xl font-black text-slate-900 sm:text-2xl">Choose a Market Module</h2>
                         </div>
 
-                        <div className="relative mx-auto min-h-[650px] max-w-[820px] overflow-hidden rounded-[2rem] bg-gradient-to-b from-slate-50 to-emerald-50/40 sm:min-h-[720px]">
+                        <div className="relative mx-auto max-w-[820px] overflow-hidden rounded-[2rem] bg-gradient-to-b from-slate-50 to-emerald-50/40 sm:min-h-[720px]">
                             <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[430px] w-[430px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-emerald-300/70 sm:block" />
                             <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[570px] w-[570px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200 sm:block" />
 
-                            <div className="absolute left-1/2 top-1/2 z-20 flex h-44 w-44 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-[8px] border-white bg-gradient-to-br from-emerald-950 to-emerald-700 p-5 text-center text-white shadow-2xl sm:h-52 sm:w-52">
+                            <div className="absolute left-1/2 top-1/2 z-20 hidden h-52 w-52 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-[8px] border-white bg-gradient-to-br from-emerald-950 to-emerald-700 p-5 text-center text-white shadow-2xl sm:flex">
                                 <Icon icon="solar:shop-bold-duotone" width="42" className="mb-2 text-amber-300" />
-                                <div className="text-lg font-black leading-tight sm:text-xl">PUBLIC MARKET</div>
+                                <div className="text-xl font-black leading-tight">PUBLIC MARKET</div>
                                 <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200">Command Center</div>
                                 <div className="mt-3 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold text-white">Tap a module</div>
                             </div>
@@ -165,9 +111,9 @@ export default function Dashboard({
                                     const radius = 300;
                                     const x = Math.cos(angle) * radius;
                                     const y = Math.sin(angle) * radius;
-                                    const style = { left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` };
+                                    const style = { "--orbit-x": `${x}px`, "--orbit-y": `${y}px` } as any;
                                     const showNew = module.isNew && inspectionIsNew;
-                                    const className = `group relative flex min-h-[118px] flex-col items-center justify-center rounded-3xl bg-gradient-to-br ${module.accent} p-3 text-center text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl sm:absolute sm:h-32 sm:w-40 sm:-translate-x-1/2 sm:-translate-y-1/2`;
+                                    const className = `group relative flex min-h-[118px] flex-col items-center justify-center rounded-3xl bg-gradient-to-br ${module.accent} p-3 text-center text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl sm:absolute sm:left-[calc(50%+var(--orbit-x))] sm:top-[calc(50%+var(--orbit-y))] sm:h-32 sm:w-40 sm:min-h-0 sm:-translate-x-1/2 sm:-translate-y-1/2`;
                                     const content = (
                                         <>
                                             {showNew && (
