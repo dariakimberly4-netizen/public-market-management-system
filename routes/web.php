@@ -34,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/inspections', function () {
+        return Inertia::render('Inspections/Index');
+    })->name('inspections.index');
+
     Route::middleware(['can:manage users'])->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
     });
