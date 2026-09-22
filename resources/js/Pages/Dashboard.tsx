@@ -1,333 +1,248 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const modules = [
+    {
+        label: "Stallholders",
+        subtitle: "Profiles & records",
+        icon: "solar:users-group-rounded-bold-duotone",
+        routeName: "tenants.index",
+        accent: "from-blue-500 to-blue-700",
+    },
+    {
+        label: "Stall Map",
+        subtitle: "Interactive layout",
+        icon: "solar:map-point-bold-duotone",
+        routeName: "layouts.mapper",
+        accent: "from-violet-500 to-violet-700",
+    },
+    {
+        label: "Lease Management",
+        subtitle: "Contracts & renewals",
+        icon: "solar:document-text-bold-duotone",
+        routeName: "contracts.index",
+        accent: "from-cyan-500 to-cyan-700",
+    },
+    {
+        label: "Collections",
+        subtitle: "Payments & receipts",
+        icon: "solar:wallet-money-bold-duotone",
+        routeName: "payments.index",
+        accent: "from-emerald-500 to-emerald-700",
+    },
+    {
+        label: "Violations",
+        subtitle: "Penalties & actions",
+        icon: "solar:danger-triangle-bold-duotone",
+        routeName: "penalties.index",
+        accent: "from-rose-500 to-rose-700",
+    },
+    {
+        label: "Inspections",
+        subtitle: "Safety & compliance",
+        icon: "solar:clipboard-check-bold-duotone",
+        href: "/inspections",
+        accent: "from-amber-500 to-orange-600",
+        isNew: true,
+    },
+    {
+        label: "Vacant Stalls",
+        subtitle: "Availability & status",
+        icon: "solar:shop-2-bold-duotone",
+        routeName: "stalls.index",
+        accent: "from-teal-500 to-teal-700",
+    },
+    {
+        label: "Reports",
+        subtitle: "Ledger & analytics",
+        icon: "solar:chart-2-bold-duotone",
+        routeName: "reports.master_ledger",
+        accent: "from-slate-600 to-slate-800",
+    },
+];
 
 export default function Dashboard({
     stats,
     recentActivity,
     expiringContracts,
     buildingSummary,
-    userRole,
-    serverIp,
 }: any) {
     const user = (usePage().props as any).auth.user;
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [inspectionIsNew, setInspectionIsNew] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        setInspectionIsNew(localStorage.getItem("market-inspections-seen") !== "1");
         return () => clearInterval(timer);
     }, []);
 
-    const hour = currentTime.getHours();
-    let greeting = "Good Evening";
-    let greetingIcon = "solar:moon-stars-bold-duotone";
-    let iconColor = "text-indigo-500 bg-indigo-50";
+    const markSeen = (label: string) => {
+        if (label === "Inspections") {
+            localStorage.setItem("market-inspections-seen", "1");
+            setInspectionIsNew(false);
+        }
+    };
 
-    if (hour < 12) {
-        greeting = "Good Morning";
-        greetingIcon = "solar:sunrise-bold-duotone";
-        iconColor = "text-yellow-500 bg-yellow-50";
-    } else if (hour < 18) {
-        greeting = "Good Afternoon";
-        greetingIcon = "solar:sun-bold-duotone";
-        iconColor = "text-orange-500 bg-orange-50";
-    }
+    const totalStalls = buildingSummary?.reduce((sum: number, item: any) => sum + Number(item.total || 0), 0) || stats?.total_stalls || 0;
+    const occupied = buildingSummary?.reduce((sum: number, item: any) => sum + Number(item.occupied || 0), 0) || stats?.occupied_stalls || 0;
+    const vacant = buildingSummary?.reduce((sum: number, item: any) => sum + Number(item.vacant || 0), 0) || stats?.vacant_stalls || 0;
+
+    const counters = [
+        { label: "Total Stalls", value: totalStalls, icon: "solar:shop-bold-duotone" },
+        { label: "Occupied", value: occupied, icon: "solar:key-minimalistic-square-bold-duotone" },
+        { label: "Vacant", value: vacant, icon: "solar:door-opened-bold-duotone" },
+        { label: "Expiring Leases", value: expiringContracts?.length || 0, icon: "solar:calendar-mark-bold-duotone" },
+    ];
 
     return (
         <AuthenticatedLayout>
-            <Head title="Dashboard Overview" />
+            <Head title="Public Market Command Center" />
 
-            <div className="py-6 sm:py-12 max-w-[98%] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-                {/* 1. LAN SERVER STATUS HEADER (Admins Only) */}
-                {userRole === "admin" && (
-                    <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 text-white overflow-hidden shadow-lg rounded-xl">
-                        <div className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-4 w-full sm:w-auto text-center sm:text-left">
-                                <div className="p-3 bg-white/10 rounded-full shrink-0 hidden sm:block">
-                                    <Icon
-                                        icon="solar:server-square-bold"
-                                        width="32"
-                                    />
+            <div className="min-h-[calc(100vh-64px)] bg-[#f4f7f5] px-4 py-5 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl space-y-5">
+                    <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 p-5 text-white shadow-xl sm:p-7">
+                        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-emerald-300">
+                                    <Icon icon="solar:city-bold-duotone" width="18" />
+                                    Public Market Management System
                                 </div>
-                                <div className="w-full">
-                                    <h3 className="text-lg font-bold flex items-center justify-center sm:justify-start gap-2">
-                                        Stall System Server Online
-                                        <span className="relative flex h-3 w-3">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                        </span>
-                                    </h3>
-                                    <p className="text-emerald-100 text-sm mt-1">
-                                        Tell network devices to connect to:{" "}
-                                        <span className="font-mono bg-black/30 px-2 py-1 rounded select-all font-bold text-yellow-300">
-                                            http://{serverIp}:8000
-                                        </span>
-                                    </p>
-                                </div>
+                                <h1 className="text-2xl font-black tracking-tight sm:text-4xl">Public Market Command Center</h1>
+                                <p className="mt-2 max-w-2xl text-sm text-emerald-100 sm:text-base">
+                                    Welcome, {user.name}. Manage stallholders, leases, collections, compliance and market operations from one central workspace.
+                                </p>
                             </div>
-
-                            <div className="text-center sm:text-right mt-2 sm:mt-0">
-                                <div className="text-xs sm:text-sm font-medium text-emerald-200 uppercase tracking-widest mb-0.5">
-                                    {currentTime.toLocaleDateString("en-US", {
-                                        weekday: "long",
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                    })}
+                            <div className="rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-left backdrop-blur-sm md:text-right">
+                                <div className="text-xs font-bold uppercase tracking-widest text-emerald-200">
+                                    {currentTime.toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
                                 </div>
-                                <div className="text-2xl sm:text-3xl font-black tabular-nums tracking-wide text-white">
-                                    {currentTime.toLocaleTimeString("en-US", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })}
+                                <div className="mt-1 text-2xl font-black tabular-nums">
+                                    {currentTime.toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    </section>
 
-                {/* 2. GREETING BANNER */}
-                <div className="bg-white overflow-hidden shadow-sm rounded-xl border-l-4 border-blue-900">
-                    <div className="p-6 text-gray-900 flex items-center justify-between">
-                        <div>
-                            <h3 className="text-xl sm:text-2xl font-bold text-blue-900">
-                                {greeting}, {user.name}!
-                            </h3>
-                            <p className="text-sm sm:text-base text-gray-600 mt-1">
-                                Welcome to the Gerona Stall Management System.
-                            </p>
-                        </div>
-                        <div
-                            className={`hidden sm:flex items-center justify-center p-4 rounded-full ${iconColor}`}
-                        >
-                            <Icon icon={greetingIcon} width="42" />
-                        </div>
-                    </div>
-                </div>
+                    <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                        {counters.map((item) => (
+                            <div key={item.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <div className="text-xs font-black uppercase tracking-wider text-slate-500">{item.label}</div>
+                                        <div className="mt-1 text-2xl font-black text-slate-900 sm:text-3xl">{item.value}</div>
+                                    </div>
+                                    <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-800">
+                                        <Icon icon={item.icon} width="26" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </section>
 
-                {/* 3. QUICK ACTIONS */}
-                <h3 className="text-lg font-bold text-gray-700 px-1 pt-2">
-                    Quick Actions
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <Link
-                        href={route("payments.index")}
-                        className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-all"
-                    >
-                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-full group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                            <Icon
-                                icon="solar:ticket-sale-bold-duotone"
-                                width="28"
-                            />
+                    <section className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-7">
+                        <div className="mb-5 text-center">
+                            <div className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700">Main Operations</div>
+                            <h2 className="mt-1 text-xl font-black text-slate-900 sm:text-2xl">Choose a Market Module</h2>
                         </div>
-                        <span className="font-bold text-sm text-gray-700 group-hover:text-emerald-900">
-                            Issue Receipt
-                        </span>
-                    </Link>
 
-                    <Link
-                        href={route("contracts.index")}
-                        className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-all"
-                    >
-                        <div className="p-3 bg-blue-50 text-blue-600 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                            <Icon
-                                icon="solar:document-add-bold-duotone"
-                                width="28"
-                            />
+                        <div className="relative mx-auto min-h-[650px] max-w-[820px] overflow-hidden rounded-[2rem] bg-gradient-to-b from-slate-50 to-emerald-50/40 sm:min-h-[720px]">
+                            <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[430px] w-[430px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-emerald-300/70 sm:block" />
+                            <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[570px] w-[570px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200 sm:block" />
+
+                            <div className="absolute left-1/2 top-1/2 z-20 flex h-44 w-44 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-[8px] border-white bg-gradient-to-br from-emerald-950 to-emerald-700 p-5 text-center text-white shadow-2xl sm:h-52 sm:w-52">
+                                <Icon icon="solar:shop-bold-duotone" width="42" className="mb-2 text-amber-300" />
+                                <div className="text-lg font-black leading-tight sm:text-xl">PUBLIC MARKET</div>
+                                <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200">Command Center</div>
+                                <div className="mt-3 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold text-white">Tap a module</div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 p-4 sm:block sm:p-0">
+                                {modules.map((module, index) => {
+                                    const angle = (index / modules.length) * Math.PI * 2 - Math.PI / 2;
+                                    const radius = 300;
+                                    const x = Math.cos(angle) * radius;
+                                    const y = Math.sin(angle) * radius;
+                                    const style = { left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` };
+                                    const showNew = module.isNew && inspectionIsNew;
+                                    const className = `group relative flex min-h-[118px] flex-col items-center justify-center rounded-3xl bg-gradient-to-br ${module.accent} p-3 text-center text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl sm:absolute sm:h-32 sm:w-40 sm:-translate-x-1/2 sm:-translate-y-1/2`;
+                                    const content = (
+                                        <>
+                                            {showNew && (
+                                                <span className="absolute -right-2 -top-2 animate-pulse rounded-full bg-yellow-300 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-slate-900 shadow-md">NEW</span>
+                                            )}
+                                            <Icon icon={module.icon} width="30" className="mb-2 transition-transform group-hover:scale-110" />
+                                            <span className="text-sm font-black leading-tight">{module.label}</span>
+                                            <span className="mt-1 text-[10px] font-medium text-white/80">{module.subtitle}</span>
+                                        </>
+                                    );
+
+                                    if (module.routeName) {
+                                        return (
+                                            <Link key={module.label} href={route(module.routeName)} style={style} className={className} onClick={() => markSeen(module.label)}>
+                                                {content}
+                                            </Link>
+                                        );
+                                    }
+
+                                    return (
+                                        <a key={module.label} href={module.href} style={style} className={className} onClick={() => markSeen(module.label)}>
+                                            {content}
+                                        </a>
+                                    );
+                                })}
+                            </div>
                         </div>
-                        <span className="font-bold text-sm text-gray-700 group-hover:text-blue-900">
-                            Assign Stall
-                        </span>
-                    </Link>
+                    </section>
 
-                    <Link
-                        href={route("tenants.index")}
-                        className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-all"
-                    >
-                        <div className="p-3 bg-orange-50 text-orange-600 rounded-full group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                            <Icon
-                                icon="solar:user-plus-bold-duotone"
-                                width="28"
-                            />
-                        </div>
-                        <span className="font-bold text-sm text-gray-700 group-hover:text-orange-900">
-                            Register Tenant
-                        </span>
-                    </Link>
-
-                    <Link
-                        href={route("layouts.mapper")}
-                        className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-all"
-                    >
-                        <div className="p-3 bg-purple-50 text-purple-600 rounded-full group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                            <Icon
-                                icon="solar:map-point-bold-duotone"
-                                width="28"
-                            />
-                        </div>
-                        <span className="font-bold text-sm text-gray-700 group-hover:text-purple-900">
-                            Map Layout
-                        </span>
-                    </Link>
-                </div>
-
-                {/* 4. EXECUTIVE SUMMARY (BUILDING TABLE) */}
-                <div className="bg-white border-2 border-slate-200 shadow-sm rounded-2xl overflow-hidden">
-                    <div className="px-6 py-5 border-b-2 border-slate-200 flex items-center justify-between bg-slate-800">
-                        <h3 className="font-black text-white flex items-center gap-2 uppercase tracking-tight">
-                            <Icon
-                                icon="solar:buildings-bold-duotone"
-                                className="w-5 h-5 text-amber-400"
-                            />
-                            Executive Summary (Status per Building)
-                        </h3>
-                    </div>
-                    <div className="overflow-x-auto custom-scrollbar">
-                        <table className="w-full text-center text-sm whitespace-nowrap">
-                            <thead className="bg-slate-100 text-slate-600 font-black uppercase text-[10px] tracking-wider border-b-2 border-slate-200">
-                                <tr>
-                                    <th className="px-4 py-3 text-left border-r-2 border-slate-200 sticky left-0 bg-slate-100 z-10">
-                                        Building Name
-                                    </th>
-                                    <th className="px-3 py-3 border-r border-slate-200 text-slate-800">
-                                        Total Stalls
-                                    </th>
-                                    <th className="px-3 py-3 border-r border-slate-200 text-slate-800">
-                                        Occupied
-                                    </th>
-                                    <th className="px-3 py-3 border-r border-slate-200 text-emerald-600 bg-emerald-50/50">
-                                        Vacant
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 font-medium">
-                                {buildingSummary?.map(
-                                    (bldg: any, index: number) => (
-                                        <tr
-                                            key={index}
-                                            className="hover:bg-slate-50 transition-colors"
-                                        >
-                                            <td className="px-4 py-3 text-left font-black text-slate-800 border-r-2 border-slate-200 sticky left-0 bg-white z-10">
-                                                {bldg.name}
-                                            </td>
-                                            <td className="px-3 py-3 border-r border-slate-100 font-bold">
-                                                {bldg.total}
-                                            </td>
-                                            <td className="px-3 py-3 border-r border-slate-100 font-bold text-slate-700">
-                                                {bldg.occupied}
-                                            </td>
-                                            <td className="px-3 py-3 border-r border-slate-100 bg-emerald-50/30 text-emerald-700 font-bold">
-                                                {bldg.vacant}
-                                            </td>
-                                        </tr>
-                                    ),
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* 5. RECENT ACTIVITY & EXPIRING CONTRACTS */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-white border-2 border-slate-200 shadow-sm rounded-2xl overflow-hidden flex flex-col">
-                        <div className="px-6 py-5 border-b-2 border-slate-200 flex items-center justify-between bg-slate-100">
-                            <h3 className="font-black text-slate-800 flex items-center gap-2 uppercase tracking-tight">
-                                <Icon
-                                    icon="solar:clipboard-list-bold-duotone"
-                                    className="w-5 h-5 text-blue-600"
-                                />
-                                Recent Administrative Activity
-                            </h3>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left text-sm">
-                                <thead className="bg-slate-50 text-slate-500 font-black uppercase text-[10px] tracking-wider border-b-2 border-slate-200">
-                                    <tr>
-                                        <th className="px-6 py-3 border-r border-slate-200">
-                                            Stall #
-                                        </th>
-                                        <th className="px-6 py-3 border-r border-slate-200">
-                                            Tenant Name
-                                        </th>
-                                        <th className="px-6 py-3 border-r border-slate-200">
-                                            Action
-                                        </th>
-                                        <th className="px-6 py-3">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100 font-medium">
-                                    {recentActivity?.map(
-                                        (activity: any, index: number) => (
-                                            <tr
-                                                key={index}
-                                                className="hover:bg-blue-50 transition-colors"
-                                            >
-                                                <td className="px-6 py-4 font-black text-slate-800 border-r border-slate-100">
-                                                    {activity.stall_code}
-                                                </td>
-                                                <td className="px-6 py-4 text-slate-700 border-r border-slate-100">
-                                                    {activity.tenant_name}
-                                                </td>
-                                                <td className="px-6 py-4 text-slate-500 border-r border-slate-100">
-                                                    {activity.action}
-                                                </td>
-                                                <td className="px-6 py-4 font-bold text-slate-600">
-                                                    {activity.date}
-                                                </td>
+                    <section className="grid gap-5 lg:grid-cols-3">
+                        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
+                            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                                <h3 className="flex items-center gap-2 font-black text-slate-800">
+                                    <Icon icon="solar:history-bold-duotone" className="text-emerald-700" width="22" />
+                                    Recent Market Activity
+                                </h3>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                                        <tr><th className="px-5 py-3">Stall</th><th className="px-5 py-3">Stallholder</th><th className="px-5 py-3">Activity</th><th className="px-5 py-3">Date</th></tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {recentActivity?.length ? recentActivity.slice(0, 6).map((activity: any, index: number) => (
+                                            <tr key={index} className="hover:bg-emerald-50/40">
+                                                <td className="px-5 py-3 font-black text-slate-800">{activity.stall_code}</td>
+                                                <td className="px-5 py-3 text-slate-700">{activity.tenant_name}</td>
+                                                <td className="px-5 py-3 text-slate-600">{activity.action}</td>
+                                                <td className="px-5 py-3 font-semibold text-slate-500">{activity.date}</td>
                                             </tr>
-                                        ),
-                                    )}
-                                </tbody>
-                            </table>
+                                        )) : (
+                                            <tr><td colSpan={4} className="px-5 py-8 text-center text-slate-400">No recent activity.</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="bg-gradient-to-br from-rose-900 to-slate-900 border-2 border-slate-800 shadow-lg rounded-2xl p-6 text-white relative overflow-hidden flex-1">
-                        <div className="absolute -right-4 -top-4 opacity-10">
-                            <Icon
-                                icon="solar:bell-bing-bold-duotone"
-                                className="w-32 h-32"
-                            />
+                        <div className="rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 text-white shadow-lg">
+                            <div className="mb-4 flex items-center gap-2 font-black">
+                                <Icon icon="solar:bell-bing-bold-duotone" width="22" />
+                                Lease Alerts
+                            </div>
+                            <div className="space-y-3">
+                                {expiringContracts?.length ? expiringContracts.slice(0, 5).map((contract: any, index: number) => (
+                                    <div key={index} className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm">
+                                        <div className="text-xs font-bold text-orange-100">Stall {contract.stall}</div>
+                                        <div className="mt-0.5 text-sm font-black">Expires in {contract.days_left} days</div>
+                                    </div>
+                                )) : (
+                                    <div className="rounded-xl bg-white/10 p-4 text-sm font-semibold">No leases expiring within 30 days.</div>
+                                )}
+                            </div>
                         </div>
-                        <h3 className="font-black text-rose-100 flex items-center gap-2 mb-5 relative z-10 uppercase tracking-tight">
-                            <Icon
-                                icon="solar:bell-bing-bold-duotone"
-                                className="w-5 h-5 text-rose-400"
-                            />
-                            Expiring Contracts Alert
-                        </h3>
-                        <ul className="space-y-5 relative z-10">
-                            {expiringContracts &&
-                            expiringContracts.length > 0 ? (
-                                expiringContracts.map(
-                                    (contract: any, index: number) => (
-                                        <li
-                                            key={index}
-                                            className="flex items-start gap-3"
-                                        >
-                                            <div className="bg-rose-400 w-2.5 h-2.5 rounded-full mt-1 shrink-0 border border-rose-200"></div>
-                                            <p className="text-sm font-medium text-rose-50 leading-snug">
-                                                Stall{" "}
-                                                <span className="font-black text-white bg-rose-500/30 px-1.5 rounded mx-1 text-rose-100">
-                                                    {contract.stall}
-                                                </span>{" "}
-                                                expires in{" "}
-                                                <span className="font-black text-white">
-                                                    {contract.days_left} days
-                                                </span>
-                                                .
-                                            </p>
-                                        </li>
-                                    ),
-                                )
-                            ) : (
-                                <li className="text-sm font-bold text-slate-400 italic">
-                                    No assignments expiring within 30 days.
-                                </li>
-                            )}
-                        </ul>
-                    </div>
+                    </section>
                 </div>
             </div>
         </AuthenticatedLayout>
